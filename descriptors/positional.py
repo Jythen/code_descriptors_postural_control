@@ -1,6 +1,7 @@
 
 
 import numpy as np
+from scipy import stats
 from constants import labels
 
 def mean_value(signal, axis = labels.ML, only_value = False):
@@ -133,13 +134,16 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
     
     sig = signal.get_signal(axis)
 
-    cov = np.cov(sig[:,0],sig[:,1],bias=True)[0,1]
+    cov = (1/len(sig)*np.sum(sig[:,0]*sig[:,1]))
 
     s_ml = rms(signal, axis=labels.ML, only_value=True)
     s_ap =  rms(signal, axis=labels.AP, only_value=True)
 
+    confidence = 0.95
+
+    quantile = stats.f.ppf(confidence, 2, len(sig)-2)
    
-    feature =  2 * np.pi * 3 * np.sqrt( (s_ml**2)*(s_ap**2) - cov**4 )
+    feature =  2 * np.pi * quantile * np.sqrt( (s_ml**2)*(s_ap**2) - cov**2 )
 
     if only_value:
         return feature
@@ -171,12 +175,12 @@ def coeff_sway_direction(signal, axis = labels.ML):
 
     sig = signal.get_signal(axis)
 
-    cov = np.cov(sig[:,0],sig[:,1],bias=True)[0,1]
+    cov = (1/len(sig)*np.sum(sig[:,0]*sig[:,1]))
     s_ml = rms(signal, axis=labels.ML, only_value=True)
     s_ap =  rms(signal, axis=labels.AP, only_value=True)
 
 
-    feature = (cov**2) / (s_ml * s_ap)
+    feature = cov / (s_ml * s_ap)
 
     return { feature_name+"_"+axis  : feature}
 
