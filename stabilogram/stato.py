@@ -88,6 +88,13 @@ class Stabilogram():
         assert not np.isnan(signal).any(), "error"
         if resample :
             self.resample(target_frequency= resample_frequency)
+        else :
+            assert original_frequency is not None, "Need to provide a frequency for the signal (parameter original frequency), or timestamps"
+            self.signal = signal[:,1:]
+            self.resample()
+            
+        
+
         if filter :
             self.filter(lower_bound=filter_lower_bound, upper_bound=filter_upper_bound, order= filter_order)
    
