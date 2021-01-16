@@ -9,8 +9,11 @@ def mean_value(signal, axis = labels.ML, only_value = False):
         return {}
     
     feature_name = "mean_value"
-    sig = signal.get_signal(axis)
-    feature = np.mean(sig)
+
+    if axis==labels.ML:
+        feature = signal.mean_value[0]
+    else:
+        feature = signal.mean_value[1]
 
     if only_value :
         return feature
@@ -201,47 +204,12 @@ def planar_deviation(signal, axis = labels.MLAP):
 
 
 
-def fractal_dimension_pd(signal, axis = labels.MLAP):
-    if not (axis in [labels.MLAP]):
-        return {}
-    
-    feature_name = "fractal_dimension_pd"
-
-    d = amplitude(signal, axis = axis,only_value = True)
-
-    N= len(signal)
-    sway_path = sway_length(signal,axis=axis,only_value = True)
-    fd = np.log(N)  / (np.log(N) + np.log(d) - np.log(sway_path)  )
-    feature =  fd
-    return { feature_name+"_"+axis  : feature}
-    
-
-def fractal_dimension_cc(signal, axis = labels.MLAP):
-    if not (axis in [labels.MLAP]):
-        return {}
-    
-    
-    feature_name = "fractal_dimension_cc"
-    r = signal.get_signal(labels.RADIUS)
-
-    d = 2 * (np.mean(r) + 1.645 * np.std(r))
-
-    N= len(signal)
-    sway_path = sway_length(signal,axis=axis,only_value = True)
-
-    fd = np.log(N)  / (np.log(N) + np.log(d) - np.log(sway_path)  )
-    feature = fd
-
-
-    return { feature_name+"_"+axis  : feature}
-
-
 def fractal_dimension_ce(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
     
     
-    feature_name = "fractal_dimension_ce"
+    feature_name = "fractal_dimension"
 
     area = confidence_ellipse_area(signal, axis =labels.MLAP, only_value=True)
 
@@ -263,4 +231,4 @@ def fractal_dimension_ce(signal, axis = labels.MLAP):
 
 all_features = [mean_value, maximal_value, mean_distance, rms, amplitude, \
                 quotient_both_direction, sway_length, confidence_ellipse_area, length_over_area, coeff_sway_direction,\
-                planar_deviation, fractal_dimension_cc, fractal_dimension_ce, fractal_dimension_pd ]
+                planar_deviation, fractal_dimension_ce]

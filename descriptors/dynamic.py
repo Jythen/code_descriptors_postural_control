@@ -4,11 +4,19 @@ import numpy as np
 from constants import labels
 from sklearn.decomposition import PCA
 import descriptors.positional as positional
+import matplotlib.pyplot as plt
+
+
+
+import scipy
+
+import pandas
+
 
 
 
 def mean_velocity(signal, axis = labels.ML,only_value = False):
-    if not (axis in [labels.ML, labels.AP,labels.MLAP]):
+    if not (axis in [labels.ML, labels.AP, labels.MLAP]):
         return {}
 
     feature_name = "mean_velocity"
@@ -26,280 +34,103 @@ def mean_velocity(signal, axis = labels.ML,only_value = False):
 
 
 
-def zeroCrossing(signal, axis = labels.SPD_ML):
-    if not (axis in [labels.SPD_ML, labels.SPD_AP]):
-        return {}
-    
-    feature_name = "zero_crossing"
-    sig = signal.get_signal(axis)
+def velocity_peaks(signal, axis=labels.SPD_ML):
 
-    zeros_cross = (sig[1:] * sig[:-1]) <=0
-
-    feature = np.sum(zeros_cross)
-
-    return { feature_name+"_"+axis  : feature}
-
-
-
-
-
-    
-
-
-
-def peak_velocity_all(signal, axis = labels.SPD_ML):
     if not (axis in [labels.SPD_ML, labels.SPD_AP]):
         return {}
 
-    feature_name = "peak_velocity_all"
     sig = signal.get_signal(axis)
 
-
-    past_cross = False 
-    current_peak = 0
-    peaks = []
-    past_spd = 0
-
-    for spd in sig :
-
-        if spd == 0 :
-            continue
-        
-
-        if spd*past_spd >= 0:
-            past_spd=spd
-            current_peak = max(current_peak, np.abs(spd))
-            continue
-        
-
-        past_spd=spd
-        if past_cross  :
-            
-            peaks.append(current_peak)
-            
-
-        else :
-            past_cross = True
-
-        current_peak =  0
-        current_peak = max(current_peak, np.abs(spd))
-        
-
-    feature = np.mean(peaks)
-
-    return { feature_name+"_"+axis  : feature}
-    
-
-def peak_velocity_pos(signal, axis = labels.SPD_ML):
-    if not (axis in [labels.SPD_ML, labels.SPD_AP]):
-        return {}
-
-    feature_name = "peak_velocity_pos"
-    sig = signal.get_signal(axis)
-
-
-    past_cross = False 
-    current_peak = 0
-    peaks = []
-    past_spd = 0
-
-    for spd in sig :
-        if spd == 0 :
-            continue
-        
-        current_peak = max(current_peak, np.abs(spd))
-
-        if spd*past_spd >= 0:
-            past_spd=spd
-            continue
-        
-
-        past_spd=spd
-        if past_cross  :
-
-            if spd <0 :
-                peaks.append(current_peak)
-            current_peak =  0
-
-        else :
-            past_cross = True
-        
-
-    feature = np.mean(peaks)
-
-    return { feature_name+"_"+axis  : feature}    
-
-
-
-def peak_velocity_neg(signal, axis = labels.SPD_ML):
-    if not (axis in [labels.SPD_ML, labels.SPD_AP]):
-        return {}
-
-    feature_name = "peak_velocity_neg"
-    sig = signal.get_signal(axis)
-
-
-    past_cross = False 
-    current_peak = 0
-    peaks = []
-    past_spd = 0
-
-    for spd in sig :
-
-        if spd == 0 :
-            continue
-        
-        current_peak = max(current_peak, np.abs(spd))
-
-        if spd*past_spd >= 0:
-            past_spd=spd
-            continue
-        
-
-        past_spd=spd
-        if past_cross  :
-
-            if spd >0 :
-                peaks.append(current_peak)
-            current_peak =  0
-
-        else :
-            past_cross = True
-        
-
-    feature = np.mean(peaks)
-
-    return { feature_name+"_"+axis  : feature}    
-
-
-
-
-
-def mean_peak_swd(signal, axis = labels.SWAY_DENSITY):
-    if not (axis in [labels.SWAY_DENSITY]):
-        return {}
-
-    feature_name = "mean_peak"
-    sig = signal.get_signal(axis)
-    
-
-    median = np.median(sig)
-
-    #to avoid bugs to median = 0, when patient moves too much
-    if median == 0:
-        median = 0.0001
-
-    past_cross = False 
     current_peak = 0
     current_peak_index = 0
-    peaks = []
-    past_swd = 0
-
-    sig = sig - median
-
-    for index,swd in enumerate(sig) :
-
-        if swd == 0 :
-            continue
-
-        if (swd) *past_swd > 0:
-            past_swd=swd
-
-            if swd > current_peak :
-                current_peak = swd
-                current_peak_index = index
-            continue
+    past_value = 0
+    zero_crossing_index = []
+    negative_peaks_index = []
+    positive_peaks_index = []
         
+    for index,value in enumerate(sig) : 
 
-        past_swd=swd 
-        if past_cross  :
+        if (value)*past_value <= 0 and index!=0 and value !=0:
 
-            if past_swd  <0:            
-                peaks.append(current_peak_index)
-            
+            if len(zero_crossing_index)>0:
+                
+                if value < 0:
+                    positive_peaks_index.append(current_peak_index)
+                else:
+                    negative_peaks_index.append(current_peak_index)
 
-        else :
-            past_cross = True
-        current_peak =  0
-        current_peak_index = 0
+            current_peak = 0
+                
+            zero_crossing_index += [index-1, index]
 
-        if swd > current_peak :
-                current_peak = swd
+        if np.abs(value) > np.abs(current_peak) :
+                current_peak = value
                 current_peak_index = index
 
-    peaks_value = [sig[u] + median for u in peaks]            
+        past_value=value
+        
+    positive_peaks = sig[np.array(positive_peaks_index)]
+    negative_peaks = np.abs(sig[np.array(negative_peaks_index)])
+    all_peaks = np.abs(sig[np.array(positive_peaks_index + negative_peaks_index)])
 
-    feature = np.mean(peaks_value)
+    return {'peak_velocity_all'+'_'+axis : np.mean(all_peaks),
+            'peak_velocity_pos'+'_'+axis : np.mean(positive_peaks),
+            'peak_velocity_neg'+'_'+axis : np.mean(negative_peaks),
+            'zero_crossing'+'_'+axis : len(zero_crossing_index)/2}
     
-    return { feature_name+"_"+axis  : feature}
+           
 
 
-def mean_distance_peak_swd(signal, axis = labels.SWAY_DENSITY):
+
+def swd_peaks(signal, axis=labels.SWAY_DENSITY):
+
     if not (axis in [labels.SWAY_DENSITY]):
         return {}
 
-    feature_name = "mean_distance_peak"
     sig = signal.get_signal(axis)
-
+    
     rsig = signal.get_signal(labels.MLAP)
-    median = np.median(sig)
-    #to avoid bugs to median = 0, when patient moves too much
-    if median == 0:
-        median = 0.0001
 
-    past_cross = False 
+    crossing_border = np.median(sig)
+    
+    #to avoid bugs to crossing_border = 0, when individual moves too much
+    if crossing_border == 0:
+        crossing_border = 0.0001
+
+    sig = sig - crossing_border
+
     current_peak = 0
     current_peak_index = 0
-    peaks = []
-    past_swd = 0
+    past_value = 0
+    zero_crossing_index = []
+    positive_peaks_index = []
 
-    sig = sig - median
+    for index,value in enumerate(sig) : 
 
-    for index,swd in enumerate(sig) :
+        if (value)*past_value <= 0 and index!=0 and value !=0:
 
-        if swd == 0 :
-            continue
+            if len(zero_crossing_index)>0:
+                
+                if value < 0:
+                    positive_peaks_index.append(current_peak_index)
+            zero_crossing_index += [index-1, index]
 
-        if (swd) *past_swd > 0:
-            past_swd=swd
+            current_peak = 0
 
-            if swd > current_peak :
-                current_peak = swd
+        if value > current_peak :
+                current_peak = value
                 current_peak_index = index
-            continue
-        
 
-        past_swd=swd 
-        if past_cross  :
+        past_value=value
 
-            if past_swd  <0:            
-                peaks.append(current_peak_index)
-            
+    positive_peaks = sig[np.array(positive_peaks_index)] + crossing_border
 
-        else :
-            past_cross = True
-        current_peak =  0
-        current_peak_index = 0
-
-        if swd > current_peak :
-                current_peak = swd
-                current_peak_index = index
-        
-
-    peak_position = [rsig[u] for u in peaks]
-    peak_position = np.array(peak_position)
-
+    peak_position = np.array([rsig[u] for u in positive_peaks_index])
     dist = np.diff(peak_position, n=1, axis=0)
     dist = np.linalg.norm(dist, axis=1)
 
-
-
-    feature = np.mean(dist)
-
-    return { feature_name+"_"+axis  : feature}
-
-
-
+    return {'mean_peak'+'_'+axis : np.mean(positive_peaks),
+            'mean_distance_peak'+'_'+axis : np.mean(dist)}
 
 
 
@@ -390,8 +221,7 @@ def vfy(signal, axis = labels.MLAP):
     dxy = signal.frequency * np.diff(xy, axis = 0, n=1)
     vdxy = np.var( np.linalg.norm(dxy, axis=1))
 
-    y =signal.get_signal(labels.AP)
-    muy = np.mean(y)
+    muy = signal.mean_value[1]
     if muy == 0:
         feature = 0
 
@@ -409,6 +239,6 @@ def vfy(signal, axis = labels.MLAP):
 
 
 
-all_features = [mean_velocity, zeroCrossing, peak_velocity_pos, peak_velocity_neg, peak_velocity_all, \
-                mean_peak_swd, mean_distance_peak_swd, principal_sway_direction, mean_frequency, \
+all_features = [mean_velocity, velocity_peaks, velocity_peaks,
+                principal_sway_direction, mean_frequency, \
                 phase_plane_parameters, sway_area_per_second, vfy]

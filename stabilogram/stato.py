@@ -55,7 +55,9 @@ class Stabilogram():
         assert n_columns in [2,3], "invalid number of columns in the array, should be 2 or 3"
 
 
+            
 
+            
 
         if n_columns == 2 :
             assert original_frequency is not None, "Need to provide a frequency for the signal (parameter original frequency), or timestamps"
@@ -65,8 +67,13 @@ class Stabilogram():
             valid_index = (np.sum(np.isnan(signal),axis=1) == 0)
             time = time[valid_index]
             signal = signal[valid_index]
+
+            mean = np.mean(signal, axis=0, keepdims=True)
+            self.mean_value = mean[0]
+                        
             if center : 
-                signal = signal - np.mean(signal, axis=0, keepdims=True)
+                signal = signal - mean
+                
 
             signal = np.concatenate([time, signal], axis = 1)
 
@@ -76,12 +83,15 @@ class Stabilogram():
             time = time - time[0]
             time = time[:,None]
             signal[:,0] = time
-
+    
+            mean = np.mean(signal[:,1:], axis=0, keepdims=True)
+            self.mean_value = mean
+            
             #center signal 
             if center : 
                 csignal = signal[:,1:]
                 csignal = csignal - np.mean(csignal, axis=0, keepdims=True)
-                signal[:,1:] =csignal
+                signal[:,1:] = csignal
                 
 
         self.signal = signal
@@ -191,7 +201,7 @@ class Stabilogram():
 
 
 
-    def _compute_sway_density(self,radius = 0.3)-> None:  
+    def _compute_sway_density(self, radius=0.3)-> None:  
         """
         Sway Density is computed by default for a 3 mm radius.
         """
@@ -223,7 +233,7 @@ class Stabilogram():
         self._diffusion_plot = diffusion_plot
 
 
-    def _compute_speed(self, window_length= 5,polyorder = 3) -> None:  
+    def _compute_speed(self, window_length=5, polyorder=3) -> None:  
         """
         Speed is computed using savgol filter. Default parameters are the one used in the paper. 
         """
