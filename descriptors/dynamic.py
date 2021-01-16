@@ -33,7 +33,6 @@ def mean_velocity(signal, axis = labels.ML,only_value = False):
 
 
 
-
 def velocity_peaks(signal, axis=labels.SPD_ML):
 
     if not (axis in [labels.SPD_ML, labels.SPD_AP]):
@@ -47,28 +46,34 @@ def velocity_peaks(signal, axis=labels.SPD_ML):
     zero_crossing_index = []
     negative_peaks_index = []
     positive_peaks_index = []
-        
+    current_side = np.sign(sig[sig!=0][0])
+
     for index,value in enumerate(sig) : 
 
-        if (value)*past_value <= 0 and index!=0 and value !=0:
+        is_crossing_point = ( (value)*past_value <= 0 ) and (index != 0)\
+                            and ( value != 0 ) and ( np.sign(value) != current_side )
+
+        if is_crossing_point:
 
             if len(zero_crossing_index)>0:
                 
                 if value < 0:
                     positive_peaks_index.append(current_peak_index)
-                else:
+
+                elif value > 0:
                     negative_peaks_index.append(current_peak_index)
+            
+            zero_crossing_index += [index-1, index]
+            current_side = np.sign(value)
 
             current_peak = 0
-                
-            zero_crossing_index += [index-1, index]
 
         if np.abs(value) > np.abs(current_peak) :
                 current_peak = value
                 current_peak_index = index
 
         past_value=value
-        
+   
     positive_peaks = sig[np.array(positive_peaks_index)]
     negative_peaks = np.abs(sig[np.array(negative_peaks_index)])
     all_peaks = np.abs(sig[np.array(positive_peaks_index + negative_peaks_index)])
@@ -78,7 +83,7 @@ def velocity_peaks(signal, axis=labels.SPD_ML):
             'peak_velocity_neg'+'_'+axis : np.mean(negative_peaks),
             'zero_crossing'+'_'+axis : len(zero_crossing_index)/2}
     
-           
+ 
 
 
 
@@ -88,7 +93,7 @@ def swd_peaks(signal, axis=labels.SWAY_DENSITY):
         return {}
 
     sig = signal.get_signal(axis)
-    
+
     rsig = signal.get_signal(labels.MLAP)
 
     crossing_border = np.median(sig)
@@ -104,16 +109,23 @@ def swd_peaks(signal, axis=labels.SWAY_DENSITY):
     past_value = 0
     zero_crossing_index = []
     positive_peaks_index = []
+    current_side = np.sign(sig[sig!=0][0])
 
     for index,value in enumerate(sig) : 
+        
+        is_crossing_point = ( (value)*past_value <= 0 ) and (index != 0)\
+                            and ( value != 0 ) and ( np.sign(value) != current_side )
 
-        if (value)*past_value <= 0 and index!=0 and value !=0:
+        if is_crossing_point:
 
             if len(zero_crossing_index)>0:
-                
+            
                 if value < 0:
+                    
                     positive_peaks_index.append(current_peak_index)
+
             zero_crossing_index += [index-1, index]
+            current_side = np.sign(value)
 
             current_peak = 0
 
@@ -128,6 +140,7 @@ def swd_peaks(signal, axis=labels.SWAY_DENSITY):
     peak_position = np.array([rsig[u] for u in positive_peaks_index])
     dist = np.diff(peak_position, n=1, axis=0)
     dist = np.linalg.norm(dist, axis=1)
+
 
     return {'mean_peak'+'_'+axis : np.mean(positive_peaks),
             'mean_distance_peak'+'_'+axis : np.mean(dist)}
