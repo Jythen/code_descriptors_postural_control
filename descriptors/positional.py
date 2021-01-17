@@ -112,22 +112,6 @@ def quotient_both_direction(signal, axis = labels.MLAP):
 
     
 
-def sway_length(signal, axis = labels.ML,only_value = False):
-    if not (axis in [labels.ML, labels.AP,labels.MLAP]):
-        return {}
-
-    feature_name = "sway_length"
-    sig = signal.get_signal(axis)
-
-    dif = np.diff(sig, n=1, axis =0)
-    dif = np.linalg.norm(dif, axis=1)
-    feature = np.sum(dif)
-
-    if only_value:
-        return feature
-
-    return { feature_name+"_"+axis  : feature}
-
 
 def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
     if not (axis in [labels.MLAP]):
@@ -153,19 +137,6 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
 
     return { feature_name+"_"+axis  : feature}
 
-
-def length_over_area(signal, axis = labels.MLAP):
-    if not (axis in [labels.MLAP]):
-        return {}
-    
-    feature_name = "length_over_area"
-
-    length = sway_length(signal,axis = labels.MLAP, only_value = True)
-    area = confidence_ellipse_area(signal, axis = labels.MLAP,only_value = True)
-    
-    feature =  length/area
-
-    return { feature_name+"_"+axis  : feature}
 
 
 
@@ -204,31 +175,9 @@ def planar_deviation(signal, axis = labels.MLAP):
 
 
 
-def fractal_dimension_ce(signal, axis = labels.MLAP):
-    if not (axis in [labels.MLAP]):
-        return {}
-    
-    
-    feature_name = "fractal_dimension"
-
-    area = confidence_ellipse_area(signal, axis =labels.MLAP, only_value=True)
-
-    d =  np.sqrt( (area * 8) /(2 * np.pi) )
-
-    N= len(signal)
-    sway_path = sway_length(signal,axis=axis,only_value = True)
-
-    fd = np.log(N)  / (np.log(N) + np.log(d) - np.log(sway_path)  )
-
-
-
-    feature = fd
-
-    return { feature_name+"_"+axis  : feature}
-
 
 
 
 all_features = [mean_value, maximal_value, mean_distance, rms, amplitude, \
-                quotient_both_direction, sway_length, confidence_ellipse_area, length_over_area, coeff_sway_direction,\
-                planar_deviation, fractal_dimension_ce]
+                quotient_both_direction, confidence_ellipse_area, coeff_sway_direction,\
+                planar_deviation, ]

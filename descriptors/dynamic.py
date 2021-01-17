@@ -204,6 +204,40 @@ def phase_plane_parameters(signal, axis = labels.ML):
 
 
 
+
+def sway_length(signal, axis = labels.ML,only_value = False):
+    if not (axis in [labels.ML, labels.AP,labels.MLAP]):
+        return {}
+
+    feature_name = "sway_length"
+    sig = signal.get_signal(axis)
+
+    dif = np.diff(sig, n=1, axis =0)
+    dif = np.linalg.norm(dif, axis=1)
+    feature = np.sum(dif)
+
+    if only_value:
+        return feature
+
+    return { feature_name+"_"+axis  : feature}
+
+
+def length_over_area(signal, axis = labels.MLAP):
+    if not (axis in [labels.MLAP]):
+        return {}
+    
+    feature_name = "length_over_area"
+
+    length = sway_length(signal,axis = labels.MLAP, only_value = True)
+    area = confidence_ellipse_area(signal, axis = labels.MLAP,only_value = True)
+    
+    feature =  length/area
+
+    return { feature_name+"_"+axis  : feature}
+
+
+
+
 def sway_area_per_second(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
@@ -219,6 +253,30 @@ def sway_area_per_second(signal, axis = labels.MLAP):
     triangles = np.abs(sig[1:,0] * sig[:-1,1] - sig[1:,1] * sig[:-1,0])
 
     feature =  np.sum(triangles) / (2*duration)
+
+    return { feature_name+"_"+axis  : feature}
+
+
+
+def fractal_dimension_ce(signal, axis = labels.MLAP):
+    if not (axis in [labels.MLAP]):
+        return {}
+    
+    
+    feature_name = "fractal_dimension"
+
+    area = confidence_ellipse_area(signal, axis =labels.MLAP, only_value=True)
+
+    d =  np.sqrt( (area * 8) /(2 * np.pi) )
+
+    N= len(signal)
+    sway_path = sway_length(signal,axis=axis,only_value = True)
+
+    fd = np.log(N)  / (np.log(N) + np.log(d) - np.log(sway_path)  )
+
+
+
+    feature = fd
 
     return { feature_name+"_"+axis  : feature}
 
@@ -252,6 +310,6 @@ def vfy(signal, axis = labels.MLAP):
 
 
 
-all_features = [mean_velocity, velocity_peaks, velocity_peaks,
+all_features = [mean_velocity, length_over_area, fractal_dimension_ce, velocity_peaks, velocity_peaks,
                 principal_sway_direction, mean_frequency, \
                 phase_plane_parameters, sway_area_per_second, vfy]
