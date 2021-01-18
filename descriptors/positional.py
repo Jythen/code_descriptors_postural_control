@@ -8,7 +8,7 @@ from constants import labels
 def mean_value(signal, axis = labels.ML, only_value = False):
     if not (axis in [labels.ML, labels.AP]):
         return {}  
-    feature_name = "Mean_value"
+    feature_name = "mean_value"
 
     if axis==labels.ML:
         feature = signal.mean_value[0]
@@ -25,7 +25,7 @@ def mean_value(signal, axis = labels.ML, only_value = False):
 def mean_distance(signal, axis = labels.ML ,only_value = False):
     if not (axis in [labels.ML, labels.AP, labels.RADIUS]):
         return {}
-    feature_name = "Mean_distance"
+    feature_name = "mean_distance"
     
     sig = signal.get_signal(axis)
 
@@ -43,7 +43,7 @@ def mean_distance(signal, axis = labels.ML ,only_value = False):
 def maximal_distance(signal, axis = labels.ML):
     if not (axis in [labels.ML, labels.AP,labels.RADIUS]):
         return {} 
-    feature_name = "Maximal_distance"
+    feature_name = "maximal_distance"
     
     sig = signal.get_signal(axis)
     feature = np.max(np.abs((sig)))
@@ -55,7 +55,7 @@ def maximal_distance(signal, axis = labels.ML):
 def rms(signal, axis = labels.ML, only_value = False):
     if not (axis in [labels.ML, labels.AP, labels.RADIUS]):
         return {}
-    feature_name = "RMS"
+    feature_name = "rms"
     
     sig = signal.get_signal(axis)
 
@@ -71,7 +71,7 @@ def rms(signal, axis = labels.ML, only_value = False):
 def amplitude(signal, axis = labels.ML,only_value = False):
     if not (axis in [labels.ML, labels.AP, labels.MLAP]):
         return {}
-    feature_name = "Amplitude"
+    feature_name = "amplitude"
     
     sig = signal.get_signal(axis)
 
@@ -98,7 +98,7 @@ def amplitude(signal, axis = labels.ML,only_value = False):
 def quotient_both_direction(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
-    feature_name = "Quotient_both_direction"
+    feature_name = "quotient_both_direction"
 
     amplitude_ml = amplitude(signal,axis=labels.ML, only_value=True)
     amplitude_ap = amplitude(signal,axis=labels.AP, only_value=True)
@@ -126,7 +126,7 @@ def planar_deviation(signal, axis = labels.MLAP):
 def coeff_sway_direction(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
-    feature_name = "Coefficient_sway_direction"
+    feature_name = "coefficient_sway_direction"
 
     sig = signal.get_signal(axis)
 
@@ -144,7 +144,7 @@ def coeff_sway_direction(signal, axis = labels.MLAP):
 def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
     if not (axis in [labels.MLAP]):
         return {}
-    feature_name = "Confidence_ellipse_area"
+    feature_name = "confidence_ellipse_area"
     
     sig = signal.get_signal(axis)
 
@@ -155,9 +155,10 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
 
     confidence = 0.95
 
-    quantile = stats.f.ppf(confidence, 2, len(sig)-2)
+    quant = stats.f.ppf(confidence, 2, len(sig)-2)
    
-    feature =  2 * np.pi * quantile * np.sqrt( (s_ml**2)*(s_ap**2) - cov**2 )
+    det = (s_ml**2)*(s_ap**2) - cov**2
+    feature =  2 * np.pi * ((len(sig)-1)/(len(sig)-2)) * quant * np.sqrt(det)
 
     if only_value:
         return feature
@@ -169,7 +170,7 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
 def principal_sway_direction(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
-    feature_name = "Principal_sway_direction"
+    feature_name = "principal_sway_direction"
     
     sig = signal.get_signal(axis)
 
