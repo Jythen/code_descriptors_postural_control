@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import stats
+from sklearn.decomposition import PCA
 from constants import labels
 
 
@@ -106,6 +107,20 @@ def quotient_both_direction(signal, axis = labels.MLAP):
 
     return { feature_name+"_"+axis  : feature}
 
+
+
+def planar_deviation(signal, axis = labels.MLAP):
+    if not (axis in [labels.MLAP]):
+        return {}
+    feature_name = "planar_deviation"
+
+    s_ml = rms(signal, axis=labels.ML, only_value=True)
+    s_ap =  rms(signal, axis=labels.AP, only_value=True)
+
+    feature = np.sqrt(s_ml**2 + s_ap**2)
+
+    return { feature_name+"_"+axis  : feature}
+
     
 
 def coeff_sway_direction(signal, axis = labels.MLAP):
@@ -151,21 +166,26 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
 
 
 
-
-def planar_deviation(signal, axis = labels.MLAP):
+def principal_sway_direction(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
-    feature_name = "planar_deviation"
+    feature_name = "Principal_sway_direction"
+    
+    sig = signal.get_signal(axis)
 
-    s_ml = rms(signal, axis=labels.ML, only_value=True)
-    s_ap =  rms(signal, axis=labels.AP, only_value=True)
+    pca = PCA(n_components= 2)
+    pca.fit(sig)
+    main_direction = pca.components_[0]
 
-    feature = np.sqrt(s_ml**2 + s_ap**2)
+    angle_rad = np.arccos(np.abs(main_direction[1])/np.linalg.norm(main_direction))
+    
+    feature = angle_rad*(180/np.pi)
 
     return { feature_name+"_"+axis  : feature}
 
 
 
-all_features = [mean_value, mean_distance, maximal_distance, rms, amplitude,\
-                quotient_both_direction, coeff_sway_direction,\
-                confidence_ellipse_area, planar_deviation]
+all_features = [mean_value, mean_distance, maximal_distance, rms, amplitude, \
+                quotient_both_direction, planar_deviation, \
+                coeff_sway_direction, confidence_ellipse_area, \
+                principal_sway_direction]

@@ -2,7 +2,6 @@
 
 import numpy as np
 from constants import labels
-from sklearn.decomposition import PCA
 import descriptors.positional as positional
 import matplotlib.pyplot as plt
 
@@ -148,25 +147,6 @@ def swd_peaks(signal, axis=labels.SWAY_DENSITY):
 
 
 
-def principal_sway_direction(signal, axis = labels.MLAP):
-    if not (axis in [labels.MLAP]):
-        return {}
-    
-    feature_name = "principal_sway_direction"
-    sig = signal.get_signal(axis)
-
-
-    dist = np.diff(sig,1, axis=0)
-    pca = PCA(n_components= 2)
-    pca.fit(dist)
-    main_direction = pca.components_[0]
-
-    angle_rad = np.arccos(np.abs(main_direction[1])/np.linalg.norm(main_direction))
-    
-    feature = angle_rad*(180/np.pi)
-
-    return { feature_name+"_"+axis  : feature}
-
 
 def mean_frequency(signal, axis = labels.ML):
     if not (axis in [labels.ML, labels.AP, labels.MLAP]):
@@ -311,5 +291,5 @@ def vfy(signal, axis = labels.MLAP):
 
 
 all_features = [mean_velocity, length_over_area, fractal_dimension_ce, velocity_peaks, velocity_peaks,
-                principal_sway_direction, mean_frequency, \
+                mean_frequency, \
                 phase_plane_parameters, sway_area_per_second, vfy]
