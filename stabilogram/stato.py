@@ -4,10 +4,12 @@
 
 import numpy as np
 from numpy.core.defchararray import upper
-from scipy.signal import butter, filtfilt, welch, savgol_filter
+from scipy.signal import butter, filtfilt, periodogram
 
 import constants.labels as labels
 from stabilogram.swarii import SWARII
+
+from scipy.fft import rfft, rfftfreq
 
 
 class Stabilogram():
@@ -187,18 +189,19 @@ class Stabilogram():
         self._radius = np.linalg.norm(self.signal, axis=1, keepdims=True) 
         
 
-  
 
     def _compute_power_spectrum(self)-> None:  
         """
-        Compute the PSD of the stabilogram using the Welch method. 
+        Compute the PSD of the stabilogram using the Periodogram method. 
         """ 
-
-        freqs, psd = welch(x=self.signal, fs=self.frequency, axis=0)       
-        power_fft = np.concatenate( [freqs[:,None], psd], axis=1)
-        self._power_spectrum  = power_fft
+        
         
 
+        freqs, psd = periodogram(np.concatenate([self.signal,np.ones((1,2))],axis=0), fs=self.frequency, axis=0)       
+        power_fft = np.concatenate( [freqs[:,None], psd], axis=1)
+        self._power_spectrum  = power_fft
+
+        print(len(self.signal), power_fft[-1,0])
 
 
     def _compute_sway_density(self, radius=0.3)-> None:  

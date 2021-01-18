@@ -1,41 +1,25 @@
-
-
 import numpy as np
 from constants import labels
 
 
 
-def _spectral_moment(signal, axis = labels.PSD_AP, moment=1):
-    if not (axis in [labels.PSD_ML, labels.PSD_AP]):
-        return {}
-    
-    freqs, powers = signal.get_signal(axis)
-
-    feature =   np.sum( np.power(freqs,moment) * powers  )
-    return feature
-    
-
-
-
-
-
-
 def power_frequency_50(signal, axis = labels.PSD_AP):
     if not (axis in [labels.PSD_ML, labels.PSD_AP]):
-        return {}
-    
+        return {}   
     feature_name = "power_frequency_50"
+    
     freqs, powers = signal.get_signal(axis)
 
     cum_pow = np.cumsum(powers)
 
     selected_freqs = freqs[ cum_pow >= (cum_pow[-1]*0.5) ]
-
+    
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(1)
+    ax.plot(freqs, powers)
+    
     feature =  selected_freqs[0]
     return { feature_name+"_"+axis  : feature}
-
-
-
 
 
 
@@ -52,6 +36,18 @@ def power_frequency_95(signal, axis = labels.PSD_AP):
 
     feature =  selected_freqs[0]
     return { feature_name+"_"+axis  : feature}
+
+
+
+
+def _spectral_moment(signal, axis = labels.PSD_AP, moment=1):
+    if not (axis in [labels.PSD_ML, labels.PSD_AP]):
+        return {}
+    
+    freqs, powers = signal.get_signal(axis)
+
+    feature =   np.sum( np.power(freqs,moment) * powers  )
+    return feature
 
 
 
