@@ -1,14 +1,13 @@
-
-
 import numpy as np
 from scipy import stats
 from constants import labels
 
+
+
 def mean_value(signal, axis = labels.ML, only_value = False):
     if not (axis in [labels.ML, labels.AP]):
-        return {}
-    
-    feature_name = "mean_value"
+        return {}  
+    feature_name = "Mean_value"
 
     if axis==labels.ML:
         feature = signal.mean_value[0]
@@ -22,24 +21,11 @@ def mean_value(signal, axis = labels.ML, only_value = False):
 
 
 
-
-
-def maximal_value(signal, axis = labels.ML):
-    if not (axis in [labels.ML, labels.AP,labels.RADIUS]):
-        return {}
-    
-    feature_name = "maximum_value"
-    sig = signal.get_signal(axis)
-    feature = np.max(np.abs((sig)))
-
-    return { feature_name+"_"+axis  : feature}
-
-
-
 def mean_distance(signal, axis = labels.ML ,only_value = False):
     if not (axis in [labels.ML, labels.AP, labels.RADIUS]):
         return {}
-    feature_name = "mean_distance"
+    feature_name = "Mean_distance"
+    
     sig = signal.get_signal(axis)
 
     dif = np.abs( sig )
@@ -52,10 +38,24 @@ def mean_distance(signal, axis = labels.ML ,only_value = False):
     return { feature_name+"_"+axis  : feature}
 
 
+
+def maximal_distance(signal, axis = labels.ML):
+    if not (axis in [labels.ML, labels.AP,labels.RADIUS]):
+        return {} 
+    feature_name = "Maximal_distance"
+    
+    sig = signal.get_signal(axis)
+    feature = np.max(np.abs((sig)))
+
+    return { feature_name+"_"+axis  : feature}
+
+
+
 def rms(signal, axis = labels.ML, only_value = False):
     if not (axis in [labels.ML, labels.AP, labels.RADIUS]):
         return {}
     feature_name = "RMS"
+    
     sig = signal.get_signal(axis)
 
     feature = np.sqrt(np.mean(sig**2))
@@ -67,15 +67,11 @@ def rms(signal, axis = labels.ML, only_value = False):
 
 
 
-
-
-
 def amplitude(signal, axis = labels.ML,only_value = False):
     if not (axis in [labels.ML, labels.AP, labels.MLAP]):
         return {}
-
-
-    feature_name = "amplitude"
+    feature_name = "Amplitude"
+    
     sig = signal.get_signal(axis)
 
     r = 0
@@ -89,6 +85,7 @@ def amplitude(signal, axis = labels.ML,only_value = False):
             dist = np.linalg.norm(d, axis=1)
             
         r = max(r, np.max(dist))
+
     feature = r
 
     if only_value:
@@ -100,7 +97,6 @@ def amplitude(signal, axis = labels.ML,only_value = False):
 def quotient_both_direction(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
-
     feature_name = "Quotient_both_direction"
 
     amplitude_ml = amplitude(signal,axis=labels.ML, only_value=True)
@@ -112,12 +108,28 @@ def quotient_both_direction(signal, axis = labels.MLAP):
 
     
 
+def coeff_sway_direction(signal, axis = labels.MLAP):
+    if not (axis in [labels.MLAP]):
+        return {}
+    feature_name = "Coefficient_sway_direction"
+
+    sig = signal.get_signal(axis)
+
+    cov = (1/len(sig)*np.sum(sig[:,0]*sig[:,1]))
+    s_ml = rms(signal, axis=labels.ML, only_value=True)
+    s_ap =  rms(signal, axis=labels.AP, only_value=True)
+
+
+    feature = cov / (s_ml * s_ap)
+
+    return { feature_name+"_"+axis  : feature}
+
+
 
 def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
     if not (axis in [labels.MLAP]):
         return {}
-    
-    feature_name = "confidence_ellipse_area"
+    feature_name = "Confidence_ellipse_area"
     
     sig = signal.get_signal(axis)
 
@@ -140,44 +152,20 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
 
 
 
-
-def coeff_sway_direction(signal, axis = labels.ML):
-    if not (axis in [labels.MLAP]):
-        return {}
-
-    feature_name = "Coefficient_sway_direction"
-
-    sig = signal.get_signal(axis)
-
-    cov = (1/len(sig)*np.sum(sig[:,0]*sig[:,1]))
-    s_ml = rms(signal, axis=labels.ML, only_value=True)
-    s_ap =  rms(signal, axis=labels.AP, only_value=True)
-
-
-    feature = cov / (s_ml * s_ap)
-
-    return { feature_name+"_"+axis  : feature}
-
-
-
 def planar_deviation(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
     feature_name = "planar_deviation"
 
-    sig = signal.get_signal(axis)
+    s_ml = rms(signal, axis=labels.ML, only_value=True)
+    s_ap =  rms(signal, axis=labels.AP, only_value=True)
 
-    f = np.var (sig, axis=0)
-
-    feature = np.sqrt(np.sum(f))
+    feature = np.sqrt(s_ml**2 + s_ap**2)
 
     return { feature_name+"_"+axis  : feature}
 
 
 
-
-
-
-all_features = [mean_value, maximal_value, mean_distance, rms, amplitude, \
-                quotient_both_direction, confidence_ellipse_area, coeff_sway_direction,\
-                planar_deviation, ]
+all_features = [mean_value, mean_distance, maximal_distance, rms, amplitude,\
+                quotient_both_direction, coeff_sway_direction,\
+                confidence_ellipse_area, planar_deviation]
