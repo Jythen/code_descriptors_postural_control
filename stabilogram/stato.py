@@ -194,14 +194,10 @@ class Stabilogram():
         """
         Compute the PSD of the stabilogram using the Periodogram method. 
         """ 
-        
-        
 
-        freqs, psd = periodogram(np.concatenate([self.signal,np.ones((1,2))],axis=0), fs=self.frequency, axis=0)       
+        freqs, psd = periodogram(self.signal, fs=self.frequency, axis=0)       
         power_fft = np.concatenate( [freqs[:,None], psd], axis=1)
         self._power_spectrum  = power_fft
-
-        print(len(self.signal), power_fft[-1,0])
 
 
     def _compute_sway_density(self, radius=0.3)-> None:  

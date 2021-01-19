@@ -7,18 +7,19 @@ def power_frequency_50(signal, axis = labels.PSD_AP):
     if not (axis in [labels.PSD_ML, labels.PSD_AP]):
         return {}   
     feature_name = "power_frequency_50"
-    
+
     freqs, powers = signal.get_signal(axis)
 
-    cum_pow = np.cumsum(powers)
+    fmin = 0.15
+    fmax = 5
+    
+    cum_power = np.cumsum(powers)
 
-    selected_freqs = freqs[ cum_pow >= (cum_pow[-1]*0.5) ]
-    
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(1)
-    ax.plot(freqs, powers)
-    
+    selected_freqs = freqs[ (freqs>=fmin) & (freqs<=fmax) & \
+                           (cum_power >= (cum_power[-1]*0.5)) ]
+
     feature =  selected_freqs[0]
+ 
     return { feature_name+"_"+axis  : feature}
 
 
@@ -26,15 +27,41 @@ def power_frequency_50(signal, axis = labels.PSD_AP):
 def power_frequency_95(signal, axis = labels.PSD_AP):
     if not (axis in [labels.PSD_ML, labels.PSD_AP]):
         return {}
-    
     feature_name = "power_frequency_95"
+    
     freqs, powers = signal.get_signal(axis)
 
-    cum_pow = np.cumsum(powers)
+    fmin = 0.15
+    fmax = 5
+    
+    cum_power = np.cumsum(powers)
 
-    selected_freqs = freqs[ cum_pow >= (cum_pow[-1]*0.95) ]
+    selected_freqs = freqs[ (freqs>=fmin) & (freqs<=fmax) & \
+                           (cum_power >= (cum_power[-1]*0.95)) ]
 
     feature =  selected_freqs[0]
+ 
+    return { feature_name+"_"+axis  : feature}
+
+
+
+def power_mode(signal, axis = labels.PSD_AP):
+    if not (axis in [labels.PSD_ML, labels.PSD_AP]):
+        return {}
+    feature_name = "frequency_mode"
+
+    freqs, powers = signal.get_signal(axis)
+
+    fmin = 0.15
+    fmax = 5
+
+    selected_freqs = freqs[(freqs>=fmin) & (freqs<=fmax)]
+    selected_powers = powers[(freqs>=fmin) & (freqs<=fmax)]
+
+    mode = np.argmax(selected_powers)
+
+    feature = selected_freqs[mode]
+
     return { feature_name+"_"+axis  : feature}
 
 
@@ -52,18 +79,6 @@ def _spectral_moment(signal, axis = labels.PSD_AP, moment=1):
 
 
     
-
-def power_mode(signal, axis = labels.PSD_AP):
-    if not (axis in [labels.PSD_ML, labels.PSD_AP]):
-        return {}
-    
-    feature_name = "frequency_mode"
-    freqs, powers = signal.get_signal(axis)
-    mode = np.argmax(powers)
-
-    feature = freqs[mode]
-    return { feature_name+"_"+axis  : feature}
-
 
 
 
