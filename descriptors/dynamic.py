@@ -274,9 +274,6 @@ def mean_frequency(signal, axis = labels.ML):
 
 
 
-
-
-
-all_features = [mean_velocity, phase_plane_parameter, length_over_area, \
-                fractal_dimension_ce, velocity_peaks, swd_peaks, \
-                mean_frequency, sway_area_per_second, vfy]
+all_features = [mean_velocity, sway_area_per_second, phase_plane_parameter, 
+                vfy, length_over_area, fractal_dimension_ce, velocity_peaks, \
+                swd_peaks, mean_frequency]
