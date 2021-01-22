@@ -137,7 +137,7 @@ def frequency_dispersion(signal, axis = labels.PSD_AP):
 def energy_content_05(signal, axis = labels.PSD_AP):
     if not (axis in [labels.PSD_ML, labels.PSD_AP]):
         return {}
-    feature_name = "energy_content_05"
+    feature_name = "energy_content_below_05"
 
     fmin = 0.15
     fmax = 5
@@ -173,7 +173,7 @@ def energy_content_05_2(signal, axis = labels.PSD_AP):
 def energy_content_2(signal, axis = labels.PSD_AP):
     if not (axis in [labels.PSD_ML, labels.PSD_AP]):
         return {}    
-    feature_name = "energy_content_2_inf"
+    feature_name = "energy_content_above_2"
     
     fmin = 0.15
     fmax = 5
