@@ -3,6 +3,26 @@ from constants import labels
 
 
 
+def total_power(signal, axis = labels.PSD_AP, only_feature=False):
+    if not (axis in [labels.PSD_ML, labels.PSD_AP]):
+        return {} 
+    feature_name = "total_power"
+
+    fmin = 0.15
+    fmax = 5
+    freqs, powers = signal.get_signal(axis)
+
+    selected_powers = powers[((freqs>=fmin) & (freqs<=fmax))]
+    
+    feature = np.sum(selected_powers)    
+    
+    if only_feature:
+        return feature
+    else:
+        return { feature_name+"_"+axis  : feature}
+
+
+
 def power_frequency_50(signal, axis = labels.PSD_AP):
     if not (axis in [labels.PSD_ML, labels.PSD_AP]):
         return {}   
@@ -13,13 +33,13 @@ def power_frequency_50(signal, axis = labels.PSD_AP):
     fmin = 0.15
     fmax = 5
     
-    cum_power = np.cumsum(powers)
+    selected_freqs = freqs[ ((freqs>=fmin) & (freqs<=fmax)) ]
+    selected_powers = powers[ ((freqs>=fmin) & (freqs<=fmax)) ]
+    
+    cum_power = np.cumsum(selected_powers)
 
-    selected_freqs = freqs[ (freqs>=fmin) & (freqs<=fmax) & \
-                           (cum_power >= (cum_power[-1]*0.5)) ]
+    feature = selected_freqs[ (cum_power >= (cum_power[-1]*0.5)) ][0]
 
-    feature =  selected_freqs[0]
- 
     return { feature_name+"_"+axis  : feature}
 
 
@@ -34,13 +54,13 @@ def power_frequency_95(signal, axis = labels.PSD_AP):
     fmin = 0.15
     fmax = 5
     
-    cum_power = np.cumsum(powers)
+    selected_freqs = freqs[ ((freqs>=fmin) & (freqs<=fmax)) ]
+    selected_powers = powers[ ((freqs>=fmin) & (freqs<=fmax)) ]
+    
+    cum_power = np.cumsum(selected_powers)
 
-    selected_freqs = freqs[ (freqs>=fmin) & (freqs<=fmax) & \
-                           (cum_power >= (cum_power[-1]*0.95)) ]
+    feature = selected_freqs[ (cum_power >= (cum_power[-1]*0.95)) ][0]
 
-    feature =  selected_freqs[0]
- 
     return { feature_name+"_"+axis  : feature}
 
 
@@ -61,23 +81,6 @@ def power_mode(signal, axis = labels.PSD_AP):
     mode = np.argmax(selected_powers)
 
     feature = selected_freqs[mode]
-
-    return { feature_name+"_"+axis  : feature}
-
-
-
-def total_power(signal, axis = labels.PSD_AP):
-    if not (axis in [labels.PSD_ML, labels.PSD_AP]):
-        return {} 
-    feature_name = "total_power"
-
-    fmin = 0.15
-    fmax = 5
-    freqs, powers = signal.get_signal(axis)
-
-    selected_powers = powers[((freqs>=fmin) & (freqs<=fmax))]
-    
-    feature = np.sum(selected_powers)    
 
     return { feature_name+"_"+axis  : feature}
 
@@ -204,7 +207,7 @@ def frequency_quotient(signal, axis = labels.PSD_AP):
 
 
 
-all_features = [power_frequency_50, power_frequency_95, power_mode, \
-                total_power, centroid_frequency, frequency_dispersion, \
+all_features = [total_power, power_frequency_50, power_frequency_95, \
+                power_mode, centroid_frequency, frequency_dispersion, \
                 energy_content_05, energy_content_05_2, energy_content_2, \
                 frequency_quotient]
