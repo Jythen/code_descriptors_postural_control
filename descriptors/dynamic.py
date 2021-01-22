@@ -41,18 +41,66 @@ def mean_velocity(signal, axis = labels.ML, only_value = False):
 
 
 
+def sway_area_per_second(signal, axis = labels.MLAP):
+    if not (axis in [labels.MLAP]):
+        return {}  
+    feature_name = "sway_area_per_second"
+    
+    sig = signal.get_signal(axis)
+
+    dt = 1/ signal.frequency
+
+    duration = (len(sig) -1) * dt
+    assert duration>0
+
+    triangles = np.abs(sig[1:,0] * sig[:-1,1] - sig[1:,1] * sig[:-1,0])
+
+    feature =  np.sum(triangles) / (2*duration)
+
+    return { feature_name+"_"+axis  : feature}
+
+
+
 def phase_plane_parameter(signal, axis = labels.ML):
     if not (axis in [labels.ML, labels.AP]):
         return {}
     feature_name = "phase_plane_parameter"
+
+    std_sig = positional.rms(signal, axis=axis, only_value=True)
     
-    sig = signal.get_signal(axis)
+    if axis == labels.ML:
+        spd = signal.get_signal(labels.SPD_ML)
+    elif axis == labels.AP:
+        spd = signal.get_signal(labels.SPD_AP)
 
-    std_sig = rms(signal, axis=axis, only_value=True)
-
-    dsig = signal.frequency * (np.diff(sig, n=1, axis=0))
-    feature = np.sqrt(std_sig**2 + np.var(dsig))
+    feature = np.sqrt(std_sig**2 + np.var(spd))
+    
     return { feature_name+"_"+axis  : feature}
+
+
+
+def vfy(signal, axis = labels.SPD_MLAP):
+    if not (axis in [labels.SPD_MLAP]):
+        return {}
+    feature_name = "vfy"
+
+    std = signal.get_signal(axis)
+
+    vdxy = np.var(std)
+
+    muy = signal.mean_value[1]
+    
+    std_ml = signal.get_signal(labels.SPD_ML)
+    fig, ax = plt.subplots(1)
+    ax.plot(std_ml)
+    ax.plot((signal.medio_lateral[1:]-signal.medio_lateral[:-1])*signal.frequency)
+    
+    if muy == 0:
+        muy = 0.0001
+
+    feature = vdxy / muy
+
+    return {feature_name+"_"+axis  : feature}
 
 
 
@@ -226,43 +274,6 @@ def mean_frequency(signal, axis = labels.ML):
 
 
 
-def sway_area_per_second(signal, axis = labels.MLAP):
-    if not (axis in [labels.MLAP]):
-        return {}  
-    feature_name = "sway_area_per_second"
-    
-    sig = signal.get_signal(axis)
-
-    dt = 1/ signal.frequency
-
-    duration = (len(sig) -1) * dt
-    assert duration>0
-
-    triangles = np.abs(sig[1:,0] * sig[:-1,1] - sig[1:,1] * sig[:-1,0])
-
-    feature =  np.sum(triangles) / (2*duration)
-
-    return { feature_name+"_"+axis  : feature}
-
-
-def vfy(signal, axis = labels.MLAP):
-    if not (axis in [labels.MLAP]):
-        return {}
-    feature_name = "vfy"
-
-    xy = signal.get_signal(labels.MLAP)
-
-    dxy = signal.frequency * np.diff(xy, axis = 0, n=1)
-    vdxy = np.var( np.linalg.norm(dxy, axis=1))
-
-    muy = signal.mean_value[1]
-    if muy == 0:
-        feature = 0
-
-    else :
-        feature = vdxy / muy
-
-    return { feature_name+"_"+axis  : feature}
 
 
 

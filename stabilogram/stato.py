@@ -4,12 +4,13 @@
 
 import numpy as np
 from numpy.core.defchararray import upper
-from scipy.signal import butter, filtfilt, periodogram
+from scipy.signal import butter, filtfilt, periodogram, savgol_filter, welch
 
 import constants.labels as labels
 from stabilogram.swarii import SWARII
 
 from scipy.fft import rfft, rfftfreq
+
 
 
 class Stabilogram():
@@ -192,12 +193,17 @@ class Stabilogram():
 
     def _compute_power_spectrum(self)-> None:  
         """
-        Compute the PSD of the stabilogram using the Periodogram method. 
+        Compute the PSD of the stabilogram using the Welch method. 
         """ 
 
-        freqs, psd = periodogram(self.signal, fs=self.frequency, axis=0)       
+        freqs, psd = welch(self.signal, fs=self.frequency, \
+                           detrend="linear", nperseg=10*self.frequency, \
+                           noverlap=0.5*10*self.frequency, axis=0, \
+                           nfft=len(self.signal))     
+
         power_fft = np.concatenate( [freqs[:,None], psd], axis=1)
         self._power_spectrum  = power_fft
+
 
 
     def _compute_sway_density(self, radius=0.3)-> None:  
@@ -237,7 +243,7 @@ class Stabilogram():
         Speed is computed using savgol filter. Default parameters are the one used in the paper. 
         """
         cop = self.signal
-        spd_savgol = savgol_filter( x = cop, window_length= window_length,polyorder = polyorder, deriv= 1, axis=0, delta= 1/self.frequency  )
+        spd_savgol = savgol_filter( x = cop, window_length=window_length, polyorder=polyorder, deriv= 1, axis=0, delta=1/self.frequency  )
         self._speed = spd_savgol
 
 
@@ -327,6 +333,8 @@ class Stabilogram():
             return self.speed[:,0:1] 
         if name == labels.SPD_AP:
             return self.speed[:,1:2]
+        if name == labels.SPD_MLAP:
+            return np.linalg.norm(self.speed,axis=1)
         if name == labels.DIFF_ML:
             return self.diffusion_plot[:,0], self.diffusion_plot[:,1]
         if name == labels.DIFF_AP:
