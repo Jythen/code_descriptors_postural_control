@@ -88,8 +88,6 @@ def vfy(signal, axis = labels.SPD_MLAP):
     vdxy = np.var(std)
 
     muy = signal.mean_value[1]
-    
-    std_ml = signal.get_signal(labels.SPD_ML)
 
     if muy == 0:
         muy = 0.0001
