@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from constants import labels
 import descriptors.positional as positional
 
@@ -91,10 +90,7 @@ def vfy(signal, axis = labels.SPD_MLAP):
     muy = signal.mean_value[1]
     
     std_ml = signal.get_signal(labels.SPD_ML)
-    fig, ax = plt.subplots(1)
-    ax.plot(std_ml)
-    ax.plot((signal.medio_lateral[1:]-signal.medio_lateral[:-1])*signal.frequency)
-    
+
     if muy == 0:
         muy = 0.0001
 
@@ -171,7 +167,7 @@ def velocity_peaks(signal, axis=labels.SPD_ML):
 
                 elif value > 0:
                     negative_peaks_index.append(current_peak_index)
-            
+
             zero_crossing_index += [index-1, index]
             current_side = np.sign(value)
 
@@ -187,7 +183,7 @@ def velocity_peaks(signal, axis=labels.SPD_ML):
     negative_peaks = np.abs(sig[np.array(negative_peaks_index)])
     all_peaks = np.abs(sig[np.array(positive_peaks_index + negative_peaks_index)])
 
-    return {'zero_crossing'+'_'+axis : len(zero_crossing_index)/2,
+    return {'zero_crossing'+'_'+axis : int(len(zero_crossing_index)/2),
             'peak_velocity_pos'+'_'+axis : np.mean(positive_peaks),
             'peak_velocity_neg'+'_'+axis : np.mean(negative_peaks),
             'peak_velocity_all'+'_'+axis : np.mean(all_peaks)}
