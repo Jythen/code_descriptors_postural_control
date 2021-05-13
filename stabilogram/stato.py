@@ -34,7 +34,7 @@ class Stabilogram():
 
 
 
-    def from_array(self, array, center = True, original_frequency = None, resample = True, resample_frequency = 25, filter = True, filter_lower_bound=0, filter_upper_bound=10, filter_order = 4 ):
+    def from_array(self, array, center = True, original_frequency = None, resample = True, resample_frequency = 25, filter_ = True, filter_lower_bound=0, filter_upper_bound=10, filter_order = 4 ):
         """
         Import an array as a stabilogram.
 
@@ -45,7 +45,7 @@ class Stabilogram():
         center : center the signal. Necessary for the correct computation of the features
 
         resample : resample the signal to the values defined in the paper. See the function resample for more details
-        filter : resample the signal to the values defined in the paper. See the function filter for more details
+        filter_ : resample the signal to the values defined in the paper. See the function filter_ for more details
 
         """
         
@@ -100,7 +100,7 @@ class Stabilogram():
         self.signal = signal
         assert not np.isnan(signal).any(), "error"
         if resample :
-            self.resample(target_frequency= resample_frequency)
+            self.resample(target_frequency=resample_frequency)
         else :
             assert original_frequency is not None, "Need to provide a frequency for the signal (parameter original frequency), or timestamps"
             self.signal = signal[:,1:]
@@ -108,8 +108,8 @@ class Stabilogram():
             
         
 
-        if filter :
-            self.filter(lower_bound=filter_lower_bound, upper_bound=filter_upper_bound, order= filter_order)
+        if filter_ :
+            self.filter_(lower_bound=filter_lower_bound, upper_bound=filter_upper_bound, order= filter_order)
    
 
 
@@ -127,7 +127,7 @@ class Stabilogram():
         assert n_columns in [2,3], "invalid number of columns in the array, should be 2 or 3"
 
         if n_columns == 3 :
-            signal = SWARII.resample(data = signal, desired_frequency=target_frequency )
+            signal = SWARII.resample(data = signal, desired_frequency=target_frequency)
 
         
         self.signal = signal
@@ -136,7 +136,7 @@ class Stabilogram():
         self.frequency = target_frequency
 
 
-    def filter(self, lower_bound=0, upper_bound=10, order = 4) -> None:
+    def filter_(self, lower_bound=0, upper_bound=10, order = 4) -> None:
         """
         Filter the stabilogram using a Butterworth filter. Default parameters are the one used in the paper. 
         """
@@ -250,7 +250,7 @@ class Stabilogram():
     def _test_correct_format(self) -> None:
         assert self.raw_signal is not None, "Please provide a signal first"
         assert self._sampling_ok, "Please resample the signal first, using the function resample " 
-        assert self._frequency_ok, "Please filter the signal first, using the function filter " 
+        assert self._frequency_ok, "Please filter the signal first, using the function filter_ " 
         assert self.signal is not None,  "Error, please resample and filter the signal again"
             
 

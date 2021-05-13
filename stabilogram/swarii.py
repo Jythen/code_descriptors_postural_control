@@ -44,7 +44,7 @@ class Local_SWARII:
         Apply the SWARII to resample a given signal.
         
         Input :
-            time:   The time stamps of the the data point in the signal. A 1-d
+            time:   The time stamps of the data point in the signal. A 1-d
                     array of shape n, where n is the number of points in the
                     signal. The unit is seconds.
             signal: The data points representing the signal. A k-d array of
