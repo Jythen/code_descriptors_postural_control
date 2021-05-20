@@ -56,7 +56,7 @@ def get_corresp(df):
     for f in df.columns:
         
         if f not in dic_group:
-            print(f, "metadata")
+#            print(f, "metadata")
             dic_group[f] = "Metadata"
             
         if f not in dic_axis:
@@ -69,7 +69,10 @@ def get_corresp(df):
                       .replace("_Diffusion","").replace("_"," ")
         
             
-    return dic_names, dic_group, dic_axis
+    return {"dic_names":dic_names, 
+            "dic_groups":dic_group, 
+            "dic_axis":dic_axis
+            }
 
 
 
