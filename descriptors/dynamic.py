@@ -4,7 +4,7 @@ import descriptors.positional as positional
 
 
 
-def sway_length(signal, axis = labels.ML,only_value = False):
+def sway_length(signal, axis = labels.ML,only_value = False, normalized=False):
     if not (axis in [labels.ML, labels.AP,labels.MLAP]):
         return {}
     feature_name = "sway_length"
@@ -14,6 +14,9 @@ def sway_length(signal, axis = labels.ML,only_value = False):
     dif = np.diff(sig, n=1, axis=0)
     dif = np.linalg.norm(dif, axis=1)
     feature = np.sum(dif)
+    
+    if normalized:
+        feature = feature * (signal.frequency / len(sig)) 
 
     if only_value:
         return feature
@@ -98,22 +101,28 @@ def vfy(signal, axis = labels.SPD_MLAP):
 
 
 
-def length_over_area(signal, axis = labels.MLAP):
+def length_over_area(signal, axis = labels.MLAP, normalized=False):
     if not (axis in [labels.MLAP]):
         return {}
-    feature_name = "length_over_area"
+    feature_name = "LFS"
 
     length = sway_length(signal, axis = labels.MLAP, only_value = True)
     area = positional.confidence_ellipse_area(signal, axis = labels.MLAP, \
                                    only_value = True)
     
     feature =  length/area
+    
+    if normalized:
+        
+        sig = signal.get_signal(axis)
+
+        feature = feature * (signal.frequency / len(sig)) 
 
     return { feature_name+"_"+axis  : feature}
 
 
 
-def fractal_dimension_ce(signal, axis = labels.MLAP):
+def fractal_dimension_ce(signal, axis = labels.MLAP, normalized=False):
     if not (axis in [labels.MLAP]):
         return {}
     feature_name = "fractal_dimension"
@@ -130,12 +139,17 @@ def fractal_dimension_ce(signal, axis = labels.MLAP):
     fd = np.log(N) / (np.log(N) + np.log(d) - np.log(sway))
 
     feature = fd
+    
+        
+    if normalized:
+        feature = feature / np.log(N) 
+
 
     return { feature_name+"_"+axis  : feature}
 
 
 
-def velocity_peaks(signal, axis=labels.SPD_ML):
+def velocity_peaks(signal, axis=labels.SPD_ML, normalized=False):
     if not (axis in [labels.SPD_ML, labels.SPD_AP]):
         return {}
 
@@ -180,8 +194,14 @@ def velocity_peaks(signal, axis=labels.SPD_ML):
     positive_peaks = sig[np.array(positive_peaks_index)]
     negative_peaks = np.abs(sig[np.array(negative_peaks_index)])
     all_peaks = np.abs(sig[np.array(positive_peaks_index + negative_peaks_index)])
+    
+    
+    zero_crossing = int(len(zero_crossing_index)/2)
+    
+    if normalized:
+        zero_crossing = zero_crossing * (signal.frequency / len(sig)) 
 
-    return {'zero_crossing'+'_'+axis : int(len(zero_crossing_index)/2),
+    return {'zero_crossing'+'_'+axis : zero_crossing,
             'peak_velocity_pos'+'_'+axis : np.mean(positive_peaks),
             'peak_velocity_neg'+'_'+axis : np.mean(negative_peaks),
             'peak_velocity_all'+'_'+axis : np.mean(all_peaks)}
@@ -271,3 +291,6 @@ def mean_frequency(signal, axis = labels.ML):
 all_features = [mean_velocity, sway_area_per_second, phase_plane_parameter, 
                 vfy, length_over_area, fractal_dimension_ce, velocity_peaks, \
                 swd_peaks, mean_frequency]
+
+
+to_normalize = [sway_length, fractal_dimension_ce, velocity_peaks, length_over_area]

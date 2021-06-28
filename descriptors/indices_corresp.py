@@ -8,9 +8,10 @@ dic_groups["Positional"] = ["mean_distance", "maximal_distance", "rms", "amplitu
                       "confidence_ellipse_area", "principal_sway_direction"]
 
 
-dic_groups["Dynamic"] = ["mean_velocity", "sway_area_per_second", "phase_plane_parameter",
+dic_groups["Dynamic"] = ["sway_length", "mean_velocity", "LFS", "sway_area_per_second", "phase_plane_parameter",
                         "length_over_area", "fractal_dimension", "zero_crossing", "peak_velocity_pos", 
-                        "peak_velocity_neg", "peak_velocity_all", "mean_peak", "mean_distance_peak", "mean_frequency"]
+                        "peak_velocity_neg", "peak_velocity_all", "mean_peak", "mean_distance_peak", "mean_frequency",
+                        ]
 
 dic_groups["Frequentist"] =  ["total_power", "power_frequency_50", "power_frequency_95", "frequency_mode",
                       "centroid_frequency", "frequency_dispersion", "energy_content_below_05", "energy_content_05_2", 
@@ -29,7 +30,8 @@ def get_corresp(df):
     for group in ["Positional","Dynamic","Frequentist","Stochastic"]:
     
         features_group = [f for f in df.columns if len([u for u in dic_groups[group] \
-                    if f.replace("_opened_eyes","").replace("_closed_eyes","").replace("_Radius","") \
+                    if f.replace("_opened_eyes","").replace("_closed_eyes","").replace("_Closed","") \
+                    .replace("_Open","").replace("_Foam","").replace("_Firm","").replace("_Radius","") \
                     .replace("_Power_Spectrum_Density","").replace("_Diffusion","") \
                     .replace("_Sway_Density","").replace("_SPD","").replace("_ML_AND_AP","") \
                     .replace("_ML","").replace("_AP","").replace("FEATURE_","") == u])>0]

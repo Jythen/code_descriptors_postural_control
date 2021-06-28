@@ -190,3 +190,6 @@ all_features = [mean_value, mean_distance, maximal_distance, rms, amplitude, \
                 quotient_both_direction, planar_deviation, \
                 coeff_sway_direction, confidence_ellipse_area, \
                 principal_sway_direction]
+
+
+to_normalize = []

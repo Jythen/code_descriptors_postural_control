@@ -211,3 +211,7 @@ all_features = [total_power, power_frequency_50, power_frequency_95, \
                 power_mode, centroid_frequency, frequency_dispersion, \
                 energy_content_05, energy_content_05_2, energy_content_2, \
                 frequency_quotient]
+
+
+
+to_normalize = []

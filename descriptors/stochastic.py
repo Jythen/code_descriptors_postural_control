@@ -93,3 +93,6 @@ def SDA(signal, axis=labels.DIFF_ML):
             'long_time_scaling'+'_'+axis : long_time_scaling}    
 
 all_features = [SDA]
+
+
+to_normalize = []
