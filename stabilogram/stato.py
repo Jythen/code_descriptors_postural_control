@@ -137,7 +137,7 @@ class Stabilogram():
 
 
     def filter_(self, lower_bound=0, upper_bound=10, order = 4) -> None:
-        """
+        """ 
         Filter the stabilogram using a Butterworth filter. Default parameters are the one used in the paper. 
         """
 
@@ -148,7 +148,6 @@ class Stabilogram():
 
 
         signal = np.array(self.signal)
-        dt = 1 / self.frequency
         nyq = 0.5 * self.frequency
         low = lower_bound / nyq
         high = upper_bound / nyq
@@ -213,15 +212,45 @@ class Stabilogram():
         signal = np.array(self.signal)
         sway = np.zeros(len(signal)-1)
         
-        for starting_point in range(len(signal)-1):
-            stopping_point = starting_point+1
-            while stopping_point< len(signal):
-                if np.linalg.norm(signal[stopping_point] - signal[starting_point])>radius:
+        for t in range(len(signal)-1):
+#            stopping_point = starting_point+1
+#            while stopping_point< len(signal):
+#                if np.linalg.norm(signal[stopping_point] - signal[starting_point])>radius:
+#                    break
+#                stopping_point+=1
+#            sway[starting_point] = stopping_point - starting_point - 1
+
+        
+            stopping_point = t+1
+            while stopping_point<len(signal):
+                if np.linalg.norm(signal[stopping_point] - signal[t])>radius:
                     break
                 stopping_point+=1
-            sway[starting_point] = stopping_point -starting_point - 1
+                
+            starting_point = t-1
+            while starting_point>=0:
+                if np.linalg.norm(signal[starting_point] - signal[t])>radius:
+                    break
+                starting_point-=1
+                
+            start = starting_point+1
+            stop = stopping_point-1
+                
+            sway[t] = stop-start
 
-        self._sway_density = sway/self.frequency
+ 
+        sway = sway / self.frequency
+
+        nyq = 0.5 * self.frequency
+
+        high = 2.5 / nyq
+
+        b, a = butter(N=4, Wn=high, btype='lowpass')
+
+        sway = filtfilt(b, a, sway, axis=0)    
+                
+        self._sway_density = sway
+        
 
 
         

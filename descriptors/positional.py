@@ -29,7 +29,7 @@ def mean_distance(signal, axis = labels.ML ,only_value = False):
     
     sig = signal.get_signal(axis)
 
-    dif = np.abs( sig )
+    dif = np.abs(sig)
 
     feature = np.mean(dif)
 
