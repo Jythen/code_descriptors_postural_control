@@ -71,7 +71,7 @@ def rms(signal, axis = labels.ML, only_value = False):
 def amplitude(signal, axis = labels.ML,only_value = False):
     if not (axis in [labels.ML, labels.AP, labels.MLAP]):
         return {}
-    feature_name = "amplitude"
+    feature_name = "range"
     
     sig = signal.get_signal(axis)
 
@@ -98,7 +98,7 @@ def amplitude(signal, axis = labels.ML,only_value = False):
 def quotient_both_direction(signal, axis = labels.MLAP):
     if not (axis in [labels.MLAP]):
         return {}
-    feature_name = "quotient_both_direction"
+    feature_name = "range_ratio"
 
     amplitude_ml = amplitude(signal,axis=labels.ML, only_value=True)
     amplitude_ap = amplitude(signal,axis=labels.AP, only_value=True)

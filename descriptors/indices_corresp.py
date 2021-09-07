@@ -59,10 +59,10 @@ def get_corresp(df):
         
         if f not in dic_group:
 #            print(f, "metadata")
-            dic_group[f] = "Metadata"
+            dic_group[f] = "Morphological characteristics"
             
         if f not in dic_axis:
-            dic_axis[f] = "Metadata"
+            dic_axis[f] = "Morphological characteristics"
             
     dic_names = {}
     for f in df.columns:
