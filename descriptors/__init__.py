@@ -3,19 +3,51 @@ from constants import labels
 
 
         
-def compute_all_features(signal):
-	domains = [positional, dynamic, frequentist, stochastic]
-	all_labels = labels.all_labels
+functions_with_params = {"swd_peaks": ["sway_density_radius"]}
 
-	features = {}
 
-	for domain in domains :
-		for function in domain.all_features :
-			for label in all_labels:
-				result = function( signal, axis=label)
-				features.update(result)
-	return features 
+def compute_all_features(signal, params_dic):
+    
+    
+    domains = [positional, dynamic, frequentist, stochastic]
+    
+    all_labels = labels.all_labels
+    
+    features = {}
+    
+    
+    for domain in domains:
+        
+        for function in domain.all_features:
+            
+            params = None
+            
+            for key in functions_with_params:
+                
+                if key in str(function):
+                    
+                    params = {param: params_dic[param] for param in functions_with_params[key]}
 
+            for label in all_labels:
+                
+                
+                if params is not None:
+                    
+                    result = function(signal, **params)
+                
+                else:
+                    result = function(signal, axis=label)
+                
+                
+#                if len(result)>0:
+#                    print(result)
+#                mean_peak_Sway_Density
+#                
+                features.update(result)
+                
+                
+                
+    return features
 
 
 

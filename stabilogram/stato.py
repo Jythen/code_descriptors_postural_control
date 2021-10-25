@@ -6,10 +6,11 @@ import numpy as np
 from numpy.core.defchararray import upper
 from scipy.signal import butter, filtfilt, periodogram, savgol_filter, welch
 
-import constants.labels as labels
-from stabilogram.swarii import SWARII
+from swarii import SWARII
 
 from scipy.fft import rfft, rfftfreq
+
+import labels
 
 
 
@@ -34,7 +35,7 @@ class Stabilogram():
 
 
 
-    def from_array(self, array, center = True, original_frequency = None, resample = True, resample_frequency = 25, filter_ = True, filter_lower_bound=0, filter_upper_bound=10, filter_order = 4 ):
+    def from_array(self, array, center = True, original_frequency = None, time = None, resample = True, resample_frequency = 25, filter_ = True, filter_lower_bound=0, filter_upper_bound=10, filter_order = 4 ):
         """
         Import an array as a stabilogram.
 
@@ -63,9 +64,12 @@ class Stabilogram():
             
 
         if n_columns == 2 :
-            assert original_frequency is not None, "Need to provide a frequency for the signal (parameter original frequency), or timestamps"
-            time = np.arange(len(signal))/original_frequency
-            time = time[:,None]
+            assert original_frequency is not None or time is not None, "Need to provide a frequency for the signal (parameter original frequency), or timestamps"
+            
+            if original_frequency is not None:
+            
+                time = np.arange(len(signal))/original_frequency
+                time = time[:,None]
 
             valid_index = (np.sum(np.isnan(signal),axis=1) == 0)
             time = time[valid_index]
@@ -206,6 +210,7 @@ class Stabilogram():
 
 
     def _compute_sway_density(self, radius=0.3)-> None:  
+        
         """
         Sway Density is computed by default for a 3 mm radius.
         """
@@ -213,12 +218,6 @@ class Stabilogram():
         sway = np.zeros(len(signal)-1)
         
         for t in range(len(signal)-1):
-#            stopping_point = starting_point+1
-#            while stopping_point< len(signal):
-#                if np.linalg.norm(signal[stopping_point] - signal[starting_point])>radius:
-#                    break
-#                stopping_point+=1
-#            sway[starting_point] = stopping_point - starting_point - 1
 
         
             stopping_point = t+1
@@ -250,7 +249,6 @@ class Stabilogram():
         sway = filtfilt(b, a, sway, axis=0)    
                 
         self._sway_density = sway
-        
 
 
         
@@ -307,7 +305,7 @@ class Stabilogram():
     def sway_density(self) -> np.ndarray:
         self._test_correct_format()
         if self._sway_density is None:
-            self._compute_sway_density()
+            self._compute_sway_density(self.sway_density_radius)
         return self._sway_density
 
 
@@ -343,7 +341,10 @@ class Stabilogram():
             
 
 
-    def get_signal(self, name) -> np.ndarray:
+    def get_signal(self, name, **kwargs) -> np.ndarray:
+        
+        
+        
         if name == labels.ML:
             return self.medio_lateral
         if name == labels.AP :
@@ -353,7 +354,8 @@ class Stabilogram():
         if name == labels.RADIUS :
             return self.radius
         if name == labels.SWAY_DENSITY :
-            return self.sway_density
+            self.sway_density_radius = kwargs["sway_density_radius"]
+            return self.sway_density    
         if name == labels.PSD_ML :
             return self.power_spectrum[:,0], self.power_spectrum[:,1]
         if name == labels.PSD_AP :
