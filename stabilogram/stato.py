@@ -6,13 +6,11 @@ import numpy as np
 from numpy.core.defchararray import upper
 from scipy.signal import butter, filtfilt, periodogram, savgol_filter, welch
 
-from swarii import SWARII
+from stabilogram.swarii import SWARII
 
 from scipy.fft import rfft, rfftfreq
 
-import labels
-
-
+from constants import labels
 
 class Stabilogram():
     def __init__(self):
@@ -150,6 +148,8 @@ class Stabilogram():
         assert self._sampling_ok, "Please resample the signal first, using the function resample " 
         assert self.signal is not None,  "Error, please resample the signal again"
 
+
+        
 
         signal = np.array(self.signal)
         nyq = 0.5 * self.frequency

@@ -1,6 +1,6 @@
 import numpy as np
-import labels
-import positional as positional
+from constants import labels
+import descriptors.positional as positional
 
 
 
@@ -263,8 +263,7 @@ def swd_peaks(signal, axis=labels.SWAY_DENSITY, sway_density_radius=0.3):
     positive_peaks = sig[np.array(positive_peaks_index)] #+ crossing_border
 
     peak_position = np.array([rsig[u] for u in positive_peaks_index])
-    
-    print(peak_position)
+
     dist = np.diff(peak_position, n=1, axis=0)
     dist = np.linalg.norm(dist, axis=1)
 

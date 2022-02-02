@@ -43,9 +43,9 @@ Y= Y.to_numpy()[4000:7000]
 
 # In[5]:
 
-
-plt.plot(X)
-plt.plot(Y)
+fig, ax = plt.subplots(1)
+ax.plot(X)
+ax.plot(Y)
 
 
 # In[6]:
@@ -56,9 +56,11 @@ data = np.array([X,Y]).T
 
 # In[7]:
 
-
+# Verif if NaN data
 valid_index = (np.sum(np.isnan(data),axis=1) == 0)
-print(np.sum(valid_index),len(data))
+
+if np.sum(valid_index) != len(data):
+    raise ValueError("Clean NaN values first")
 
 
 # In[8]:
@@ -71,18 +73,22 @@ stato.from_array(array=data, original_frequency=100)
 # In[9]:
 
 
-plt.plot(stato.medio_lateral)
-plt.plot(stato.antero_posterior)
+fig, ax = plt.subplots(1)
+ax.plot(stato.medio_lateral)
+ax.plot(stato.antero_posterior)
 
 
 # In[10]:
 
+sway_density_radius = 0.3 # 3 mm
 
-features = compute_all_features(stato)
+params_dic = {"sway_density_radius": sway_density_radius}
+
+features = compute_all_features(stato, params_dic=params_dic)
 
 
 # In[11]:
 
 
-features
+print(features)
 
