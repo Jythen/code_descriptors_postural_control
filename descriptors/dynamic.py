@@ -1,6 +1,6 @@
 import numpy as np
-from constants import labels
-import descriptors.positional as positional
+from code_descriptors_postural_control.constants import labels
+import code_descriptors_postural_control.descriptors.positional as positional
 
 
 

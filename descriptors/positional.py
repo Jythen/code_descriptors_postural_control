@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import stats
 from sklearn.decomposition import PCA
-from constants import labels
+from code_descriptors_postural_control.constants import labels
 
 
 
@@ -141,6 +141,7 @@ def coeff_sway_direction(signal, axis = labels.MLAP):
 
 
 
+
 def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
     if not (axis in [labels.MLAP]):
         return {}
@@ -156,14 +157,18 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
     confidence = 0.95
 
     quant = stats.f.ppf(confidence, 2, len(sig)-2)
-   
+    
+    n = len(sig)
+    coeff =  ((n+1)*(n-1)) / (n*(n-2))
+       
     det = (s_ml**2)*(s_ap**2) - cov**2
-    feature =  2 * np.pi * ((len(sig)-1)/(len(sig)-2)) * quant * np.sqrt(det)
+    feature =  2 * np.pi * quant * np.sqrt(det) * coeff
 
     if only_value:
         return feature
 
     return { feature_name+"_"+axis  : feature}
+
 
 
 

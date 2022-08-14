@@ -6,11 +6,11 @@ import numpy as np
 from numpy.core.defchararray import upper
 from scipy.signal import butter, filtfilt, periodogram, savgol_filter, welch
 
-from stabilogram.swarii import SWARII
+from code_descriptors_postural_control.stabilogram.swarii import SWARII
 
 from scipy.fft import rfft, rfftfreq
 
-from constants import labels
+from code_descriptors_postural_control.constants import labels
 
 class Stabilogram():
     def __init__(self):
@@ -100,13 +100,18 @@ class Stabilogram():
                 
 
         self.signal = signal
-        assert not np.isnan(signal).any(), "error"
+        assert not np.isnan(signal).any(), "error, NaN values"
         if resample :
             self.resample(target_frequency=resample_frequency)
         else :
-            assert original_frequency is not None, "Need to provide a frequency for the signal (parameter original frequency), or timestamps"
-            self.signal = signal[:,1:]
-            self.resample()
+            assert original_frequency is not None, "Need to provide a frequency for the signal (parameter original frequency) when resample is set to False"
+            self._sampling_ok = True
+            self._frequency_ok = True
+            self.frequency = original_frequency
+            self.signal = self.signal[:,1:]
+            
+            
+            print(self.signal)
             
         
 

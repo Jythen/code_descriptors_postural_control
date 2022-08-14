@@ -1,5 +1,5 @@
 import numpy as np
-from constants import labels
+from code_descriptors_postural_control.constants import labels
 
 
 
