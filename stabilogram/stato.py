@@ -124,7 +124,10 @@ class Stabilogram():
 
         """
         Resample the stabilogram using SWARII, using the parameters recommended in the paper
+        
         """
+
+        print("ok")
 
         assert self.signal is not None, "Please provide a signal first"
 
@@ -135,6 +138,9 @@ class Stabilogram():
 
         if n_columns == 3 :
             signal = SWARII.resample(data = signal, desired_frequency=target_frequency)
+            
+            
+            print(signal.shape)
 
         
         self.signal = signal

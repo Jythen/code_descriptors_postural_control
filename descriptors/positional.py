@@ -149,7 +149,7 @@ def confidence_ellipse_area(signal, axis = labels.MLAP, only_value = False):
     
     sig = signal.get_signal(axis)
 
-    cov = (1/len(sig))*np.sum(sig[:,0]*sig[:,1]))
+    cov = (1/len(sig))*np.sum(sig[:,0]*sig[:,1])
 
     s_ml = rms(signal, axis=labels.ML, only_value=True)
     s_ap =  rms(signal, axis=labels.AP, only_value=True)
