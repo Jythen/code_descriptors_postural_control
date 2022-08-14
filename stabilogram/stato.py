@@ -21,7 +21,6 @@ class Stabilogram():
         self.frequency = None               # frequency of the signal. Only if uniformly sampled  
 
         self._sampling_ok = None            # is the signal uniformly sampled ?
-        self._frequency_ok = None           # is the frequency of the signal within reasonable bounds ?
         
 
         # Store the values of signal transformation, to avoid multiple computations
@@ -106,14 +105,8 @@ class Stabilogram():
         else :
             assert original_frequency is not None, "Need to provide a frequency for the signal (parameter original frequency) when resample is set to False"
             self._sampling_ok = True
-            self._frequency_ok = True
             self.frequency = original_frequency
             self.signal = self.signal[:,1:]
-            
-            
-            print(self.signal)
-            
-        
 
         if filter_ :
             self.filter_(lower_bound=filter_lower_bound, upper_bound=filter_upper_bound, order= filter_order)
@@ -127,8 +120,6 @@ class Stabilogram():
         
         """
 
-        print("ok")
-
         assert self.signal is not None, "Please provide a signal first"
 
         signal = np.array(self.signal)
@@ -138,14 +129,9 @@ class Stabilogram():
 
         if n_columns == 3 :
             signal = SWARII.resample(data = signal, desired_frequency=target_frequency)
-            
-            
-            print(signal.shape)
 
-        
         self.signal = signal
         self._sampling_ok = True
-        self._frequency_ok = False
         self.frequency = target_frequency
 
 
@@ -176,7 +162,6 @@ class Stabilogram():
 
         y = filtfilt(b, a, signal,axis=0)    
         self.signal = y
-        self._frequency_ok = True
 
 
         
@@ -288,7 +273,6 @@ class Stabilogram():
     def _test_correct_format(self) -> None:
         assert self.raw_signal is not None, "Please provide a signal first"
         assert self._sampling_ok, "Please resample the signal first, using the function resample " 
-        assert self._frequency_ok, "Please filter the signal first, using the function filter_ " 
         assert self.signal is not None,  "Error, please resample and filter the signal again"
             
 
