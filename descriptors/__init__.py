@@ -6,7 +6,9 @@ from code_descriptors_postural_control.constants import labels
 functions_with_params = {"swd_peaks": ["sway_density_radius"]}
 
 
-def compute_all_features(signal, params_dic):
+default_param_dic = {"sway_density_radius":0.3}
+
+def compute_all_features(signal, params_dic=default_param_dic):
     
     
     domains = [positional, dynamic, frequentist, stochastic]
